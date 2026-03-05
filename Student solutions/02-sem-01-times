@@ -1,0 +1,197 @@
+#include <iostream>
+#include <fstream>
+#include <print>
+
+namespace Constants {
+    constexpr int MinHours = 0;
+    constexpr int MaxHours = 23;
+    constexpr int MinMinutes = 0;
+    constexpr int MaxMinutes = 59;
+    constexpr int MinSeconds = 0;
+    constexpr int MaxSeconds = 59;
+    constexpr int MinutesInHour = 60;
+    constexpr int SecondsInMinute = 60;
+	constexpr int SecondsInHour = 60 * SecondsInMinute;
+    constexpr int MaxTimeInSeconds = 24 * SecondsInHour;
+	constexpr int BufferSize = 32;
+	constexpr char FileName[10] = "times.txt";
+	constexpr int ValidTimestampLength = 8;
+}
+
+class Time {
+private:
+    int hours = 0;
+    int minutes = 0;
+	int seconds = 0;
+
+    bool validateTimestamp(const char* timestamp) {
+        if (std::strlen(timestamp) != Constants::ValidTimestampLength) return false;
+        if (timestamp[2] != ':' || timestamp[5] != ':') return false;
+
+        for (int i = 0; i < Constants::ValidTimestampLength; i++) {
+            if (i == 2 || i == 5) continue;
+
+            if (!std::isdigit(timestamp[i])) return false;
+        }
+
+        int hours = (timestamp[0] - '0') * 10 + (timestamp[1] - '0');
+        int minutes = (timestamp[3] - '0') * 10 + (timestamp[4] - '0');
+        int seconds = (timestamp[6] - '0') * 10 + (timestamp[7] - '0');
+
+        if (
+            hours < Constants::MinHours || hours > Constants::MaxHours ||
+            minutes < Constants::MinMinutes || minutes > Constants::MaxMinutes ||
+            seconds < Constants::MinSeconds || seconds > Constants::MaxSeconds) {
+            return false;
+        }
+
+        return true;
+    }
+
+public:
+    int getHours() const {
+        return hours;
+    }
+
+    void setHours(int hours) {
+        if (hours < Constants::MinHours || hours > Constants::MaxHours) return;
+		
+        this->hours = hours;
+	}
+
+    int getMinutes() const {
+        return minutes;
+	}
+
+    void setMinutes(int minutes) {
+		if (minutes < Constants::MinMinutes || minutes > Constants::MaxMinutes) return;
+
+        this->minutes = minutes;
+    }
+
+    int getSeconds() const {
+        return seconds;
+    }
+
+    void setSeconds(int seconds) {
+		if (seconds < Constants::MinSeconds || seconds > Constants::MaxSeconds) return;
+
+        this->seconds = seconds;
+	}
+
+    void setAll(int hours, int minutes, int seconds) {
+        setHours(hours);
+        setMinutes(minutes);
+        setSeconds(seconds);
+	}
+
+    int toSeconds() const {
+        return hours * Constants::SecondsInHour + minutes * Constants::SecondsInMinute + seconds;
+    }
+
+    void addSeconds(int delta) {
+        if (delta <= 0) return;
+		int totalSeconds = toSeconds() + delta;
+		totalSeconds %= Constants::MaxTimeInSeconds;
+
+        hours = totalSeconds / Constants::SecondsInHour;
+        totalSeconds %= Constants::SecondsInHour;
+
+        minutes = totalSeconds / Constants::SecondsInMinute;
+		seconds = totalSeconds % Constants::SecondsInMinute;
+    }
+
+    bool isBefore(const Time& other) const {
+        if (hours < other.hours) return true;
+        if (hours > other.hours) return false;
+
+        if (minutes < other.minutes) return true;
+        if (minutes > other.minutes) return false;
+
+        return seconds < other.seconds;
+    }
+
+    bool isAfter(const Time& other) const {
+        if (hours > other.hours) return true;
+        if (hours < other.hours) return false;
+
+        if (minutes > other.minutes) return true;
+        if (minutes < other.minutes) return false;
+
+		return seconds > other.seconds;
+	}
+
+    void readFromStream(std::istream& is = std::cin) {
+        char buffer[Constants::BufferSize];
+        is.getline(buffer, Constants::BufferSize);
+
+        if (!validateTimestamp(buffer)) return;
+
+        int hours = (buffer[0] - '0') * 10 + (buffer[1] - '0');
+        int minutes = (buffer[3] - '0') * 10 + (buffer[4] - '0');
+        int seconds = (buffer[6] - '0') * 10 + (buffer[7] - '0');
+
+		setAll(hours, minutes, seconds);
+    }
+
+    void writeToStream(std::ostream& os = std::cout) const {
+        std::println(os, "{:02}:{:02}:{:02}", hours, minutes, seconds);
+    }
+};
+
+void readFromStream(std::istream& input, Time*& times, int timesCount) {
+    for (int i = 0; i < timesCount; i++) {
+        times[i].readFromStream(input);
+	}
+}
+
+void writeToStream(std::ostream& input, Time*& times, int timesCount) {
+    for (int i = 0; i < timesCount; i++) {
+        times[i].writeToStream(input);
+	}
+}
+
+int getTimesCount(std::ifstream& input) {
+    int count = 0;
+
+    char c;
+
+    while (input.get(c)) {
+        if (c == '\n') {
+            count++;
+        }
+    }
+
+	input.clear();
+	input.seekg(0);
+
+    return count;
+}
+
+void sortTimes(Time*& times, int count) {
+    for (int i = 0; i < count - 1; i++) {
+        for (int j = 0; j < count - i - 1; j++) {
+            if (times[j].isAfter(times[j + 1])) {
+                std::swap(times[j], times[j + 1]);
+            }
+        }
+	}
+}
+
+int main() {
+    std::ifstream input(Constants::FileName);
+    if (!input.is_open()) return 0;
+
+	int timesCount = getTimesCount(input);
+    Time* times = new Time[timesCount];
+
+	readFromStream(input, times, timesCount);
+	input.close();
+
+	sortTimes(times, timesCount);
+
+	std::ofstream output(Constants::FileName, std::ios::trunc);
+	writeToStream(output, times, timesCount);
+
+    delete[] times;
+}
