@@ -1,7 +1,5 @@
 #include "GeometryVector.h"
 
-#include <iostream>
-
 void GeometryVector::copyFrom(const GeometryVector& other) {
     data = new double[other.dimension];
     for (size_t i = 0; i < other.dimension; i++) {
@@ -119,7 +117,7 @@ GeometryVector& GeometryVector::operator/=(double scalar) {
     return *this;
 }
 
-double GeometryVector::dot(const GeometryVector& other) const {
+double GeometryVector::operator%(const GeometryVector& other) const {
     checkSameDimension(other);
 
     double result = 0.0;
@@ -130,17 +128,17 @@ double GeometryVector::dot(const GeometryVector& other) const {
     return result;
 }
 
-bool GeometryVector::isOrthogonalTo(const GeometryVector& other) const {
-    return dot(other) == 0.0;
+bool GeometryVector::operator|=(const GeometryVector& other) const {
+    return *this % other == 0.0;
 }
 
-bool GeometryVector::operator==(const GeometryVector& other) const {
-    if (dimension != other.dimension) {
+bool operator==(const GeometryVector& lhs, const GeometryVector& rhs) {
+    if (lhs.getDimension() != rhs.getDimension()) {
         return false;
     }
 
-    for (size_t i = 0; i < dimension; i++) {
-        if (data[i] != other.data[i]) {
+    for (size_t i = 0; i < lhs.getDimension(); i++) {
+        if (lhs[i] != rhs[i]) {
             return false;
         }
     }
@@ -148,8 +146,29 @@ bool GeometryVector::operator==(const GeometryVector& other) const {
     return true;
 }
 
-bool GeometryVector::operator!=(const GeometryVector& other) const {
-    return !(*this == other);
+bool operator!=(const GeometryVector& lhs, const GeometryVector& rhs) {
+    return !(lhs == rhs);
+}
+
+// ! spaceship operator<=> !
+std::partial_ordering operator<=>(const GeometryVector& lhs, const GeometryVector& rhs) {
+    if (lhs.getDimension() < rhs.getDimension()) {
+        return std::partial_ordering::less;
+    }
+
+    if (lhs.getDimension() > rhs.getDimension()) {
+        return std::partial_ordering::greater;
+    }
+
+    for (size_t i = 0; i < lhs.getDimension(); i++) {
+        // partial_ordering, because comparison of doubles also returns partial_ordering
+        // due to NaN being a possible double value...
+        if (auto cmp = lhs[i] <=> rhs[i]; cmp != 0) {
+            return cmp;
+        }
+    }
+
+    return std::partial_ordering::equivalent;
 }
 
 GeometryVector operator+(const GeometryVector& lhs, const GeometryVector& rhs) {

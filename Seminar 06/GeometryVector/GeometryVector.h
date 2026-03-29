@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <compare>
 
 class GeometryVector {
 private:
@@ -34,12 +35,13 @@ public:
     GeometryVector& operator*=(double scalar);
     GeometryVector& operator/=(double scalar);
 
-    double dot(const GeometryVector& other) const;
-    bool isOrthogonalTo(const GeometryVector& other) const;
-
-    bool operator==(const GeometryVector& other) const;
-    bool operator!=(const GeometryVector& other) const;
+    double operator%(const GeometryVector& other) const; // scalar multiplication of 2 vectors
+    bool operator|=(const GeometryVector& other) const; // orthogonal check
 };
+
+bool operator==(const GeometryVector& lhs, const GeometryVector& rhs);
+bool operator!=(const GeometryVector& lhs, const GeometryVector& rhs);
+std::partial_ordering operator<=>(const GeometryVector& lhs, const GeometryVector& rhs);
 
 GeometryVector operator+(const GeometryVector& lhs, const GeometryVector& rhs);
 GeometryVector operator-(const GeometryVector& lhs, const GeometryVector& rhs);
