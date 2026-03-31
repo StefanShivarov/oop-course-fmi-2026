@@ -1,4 +1,4 @@
-# 🐑 Sleep(Sheep)Helper - Голямото броене на овце 😴
+# 🐑 Задача - Sleep(Sheep)Helper
 
 ![Sheep counting image](https://img.freepik.com/free-vector/counting-sheeps-jumping-fence_1308-34980.jpg?semt=ais_rp_50_assets&w=740&q=80)
 
