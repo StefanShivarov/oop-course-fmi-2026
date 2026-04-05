@@ -1,5 +1,9 @@
 #include "Complex.h"
 
+namespace {
+    constexpr double EPSILON = 1e-9;
+}
+
 Complex::Complex() : Complex(0, 0) {}
 
 Complex::Complex(double real, double im) : real(real), imaginary(im) {}
@@ -116,7 +120,8 @@ Complex operator/(const Complex& lhs, const Complex& rhs)
 
 bool operator==(const Complex& lhs, const Complex& rhs)
 {
-    return lhs.getReal() == rhs.getReal() && lhs.getImaginary() == rhs.getImaginary();
+    return std::fabs(lhs.getReal() - rhs.getReal()) < EPSILON &&
+           std::fabs(lhs.getImaginary() - rhs.getImaginary()) < EPSILON;
 }
 
 bool operator!=(const Complex& lhs, const Complex& rhs)
