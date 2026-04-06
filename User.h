@@ -1,35 +1,33 @@
 #pragma once
-#include<fstream>
 
 class User
 {
 private:
-	static constexpr int MAX_AGE = 100;
-
-	char* username = nullptr;
-	char* password = nullptr;
+	static constexpr int MAX_AGE = 120;
+	char* email = nullptr;
 	int age = 0;
+	double budget = 0;
 
 	void copyFrom(const User& other);
 	void free();
+	void moveFrom(User&& other);
 
 public:
 	User();
-	User(const char* name, const char* password, int age);
-	~User();
+	User(const char* email, int age, double budget);
 
 	User(const User& other);
 	User& operator=(const User& other);
+	User(User&& other)noexcept;
+	User& operator=(User&& other)noexcept;
+	~User();
 
-	void setName(const char* username);
-	void setPassword(const char* password);
+	void setEmail(const char* email);
 	void setAge(int age);
+	void setBudget(double budget);
 
-	const char* getUsername()const;
-	const char* getPassword()const;
-	int getAge()const;
+	bool canAfford(double price)const;
+	void pay(double price);
 
-	friend std::ostream& operator<<(std::ostream& os, const User& user);
 };
-
 

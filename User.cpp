@@ -1,85 +1,75 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "User.h"
 #include<cstring>
+#include<iostream>
 
-User::User() :age(0)
+User::User() :age(0), budget(0)
 {
-	username = new char[1];
-	username[0] = '\0';
-
-	password = new char[1];
-	password[0] = '\0';
+	email = new char[1];
+	email[0] = '\0';
 }
 
-User::User(const char* username, const char* password, int age)
+User::User(const char* email, int age, double budget)
 {
-	setName(username);
-	setPassword(password);
+	setEmail(email);
 	setAge(age);
-}
-
-void User::setName(const char* username)
-{
-	if (username == nullptr)
-	{
-		return;
-	}
-
-	char* newName = new char[strlen(username) + 1];
-	strcpy(newName, username);
-
-	delete[] this->username;
-	this->username = newName;
-}
-
-void User::setPassword(const char* password)
-{
-	if (password == nullptr)
-	{
-		return;
-	}
-
-	char* newPassword = new char[strlen(password) + 1];
-	strcpy(newPassword, password);
-
-	delete[] this->password;
-	this->password = newPassword;
+	setBudget(budget);
 }
 
 void User::setAge(int age)
 {
 	if (age < 0 || age > MAX_AGE)
 	{
-		this->age = 0;
 		return;
 	}
-
 	this->age = age;
+}
+
+void User::setBudget(double budget)
+{
+	if (budget < 0)
+	{
+		return;
+	}
+	this->budget = budget;
+}
+
+void User::setEmail(const char* email)
+{
+	if (email == nullptr)
+	{
+		return;
+	}
+	delete[]this->email;
+	this->email = new char[strlen(email) + 1];
+	strcpy(this->email, email);
 }
 
 void User::copyFrom(const User& other)
 {
-	username = new char[strlen(other.username) + 1];
-	strcpy(username, other.username);
-
-	password = new char[strlen(other.password) + 1];
-	strcpy(password, other.password);
-
+	email = new char[strlen(other.email) + 1];
+	strcpy(email, other.email);
 	age = other.age;
+	budget = other.budget;
+}
+
+void User::moveFrom(User&& other)
+{
+	email = other.email;
+	age = other.age;
+	budget = other.budget;
+
+	other.email = nullptr;
+	other.age = 0;
+	other.budget = 0;
 }
 
 void User::free()
 {
-	delete[]username;
-	username = nullptr;
-	delete[]password;
-	password = nullptr;
+	delete[]email;
+	email = nullptr;
 	age = 0;
-}
-
-User::~User()
-{
-	free();
+	budget = 0;
 }
 
 User::User(const User& other)
@@ -94,27 +84,35 @@ User& User::operator=(const User& other)
 		free();
 		copyFrom(other);
 	}
-
 	return *this;
 }
 
-const char* User::getUsername()const
+User::User(User&& other)noexcept
 {
-	return username;
+	moveFrom(std::move(other));
 }
 
-const char* User::getPassword()const
+User& User::operator=(User&& other)noexcept
 {
-	return password;
+	if (this != &other)
+	{
+		free();
+		moveFrom(std::move(other));
+	}
+	return *this;
 }
 
-int User::getAge()const
+User::~User()
 {
-	return age;
+	free();
 }
 
-std::ostream& operator<<(std::ostream& os, const User& user)
+bool User::canAfford(double price)const
 {
-	os << user.username << " " << user.password << " " << user.age;
-	return os;
+	return budget >= price;
+}
+
+void User::pay(double price)
+{
+	budget -= price;
 }
