@@ -16,6 +16,7 @@ _Материали от семинари по ООП на групи 4 и 5, С
 **[08](https://github.com/StefanShivarov/oop-course-fmi-2026/tree/main/Seminar%2008)** | Шаблони. Шаблонни функции и класове. Variadic templates. Concepts |
 **[09](https://github.com/StefanShivarov/oop-course-fmi-2026/tree/main/Seminar%2009)** | Rule of Zero. `std::vector` и `std::string`. Итератори. Умни указатели (smart pointers)
 **[10](https://github.com/StefanShivarov/oop-course-fmi-2026/tree/main/Seminar%2010)** | Преговор на Rule of Zero. Подготовка преди контролно 1 
+**[11](https://github.com/StefanShivarov/oop-course-fmi-2026/tree/main/Seminar%2011)** | Наследяване. Видове наследяване. Изключения(exceptions). Обработване на грешки и exception-и.
 ## 📅 График на занятията
 
 <table>
