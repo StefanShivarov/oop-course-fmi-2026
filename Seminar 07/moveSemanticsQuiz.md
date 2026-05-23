@@ -331,13 +331,15 @@ int main()
 <details>
 <summary>Отговор</summary>
 
-Не, кодът няма да се компилира.
+```
+Да, ще се компилира.
+```
 
 Обяснение:
 - `Car` съдържа член `engine` от тип `Engine`
 - `Engine(Engine&&)` е забранен (`delete`)
 - следователно имплицитно генерираният move constructor на `Car` също става deleted
-- при `Car c2 = std::move(c1);` overload resolution избира move constructor-а на `Car`, но той е deleted и съответно не се компилира
+- при `Car c2 = std::move(c1);` се избира move constructor-а на `Car`, но той е deleted и съответно се избира копиращия конструктор, който приема и lvalue и rvalue
 
 </details>
 
